@@ -1,0 +1,11 @@
+<div class="<%= styles[:card] %>">
+  <%= render partial: "active_admin/resource/active_filters", locals: {active_filters: @batched_export_active_filters} %>
+</div>
+
+<div class="space-y-2">
+  <h2 class="<%= styles[:heading] %>"><%= t("active_admin.batched_export") %></h2>
+  <p class="<%= styles[:hint] %>"><%= t("active_admin.batched_export_page.blurb") %></p>
+  <% if @batched_export_large_export %>
+    <p class="<%= styles[:warning] %>"><%= t("active_admin.batched_export_page.large_export_warning") %></p>
+  <% end %>
+</div>

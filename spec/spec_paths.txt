@@ -1,0 +1,10 @@
+spec/activeadmin/batched_export/configuration_spec.rb
+spec/activeadmin/batched_export/controller_methods_spec.rb
+spec/activeadmin/batched_export/export_macro_catalog_spec.rb
+spec/activeadmin/batched_export/export_macro_resolver_spec.rb
+spec/activeadmin/batched_export/install_spec.rb
+spec/activeadmin/batched_export/resource_settings_spec.rb
+spec/activeadmin/batched_export/styles_spec.rb
+spec/activeadmin/batched_export/version_spec.rb
+spec/requests/batched_export_macro_error_spec.rb
+spec/requests/batched_export_spec.rb

@@ -1,0 +1,22 @@
+<% styles = @batched_export_styles %>
+<% stimulus_controller = @batched_export_stimulus_controller %>
+<div
+  class="<%= styles[:workspace] %>"
+  data-controller="<%= stimulus_controller %>"
+  data-<%= stimulus_controller %>-meta-url-value="<%= @batched_export_meta_url %>"
+  data-<%= stimulus_controller %>-meta-value="<%= @batched_export_preview.to_json %>"
+  data-<%= stimulus_controller %>-batch-base-url-value="<%= @batched_export_batch_base_url %>"
+  data-<%= stimulus_controller %>-format-value="<%= @batched_export_format %>"
+  data-<%= stimulus_controller %>-preparing-message-value="<%= t("active_admin.batched_export_page.preparing") %>"
+  data-<%= stimulus_controller %>-loading-batch-template-value="<%= t("active_admin.batched_export_page.loading_batch") %>"
+  data-<%= stimulus_controller %>-empty-message-value="<%= t("active_admin.batched_export_page.empty") %>"
+  data-<%= stimulus_controller %>-failed-batch-template-value="<%= t("active_admin.batched_export_page.failed_batch") %>"
+  data-<%= stimulus_controller %>-ready-message-value="<%= t("active_admin.batched_export_page.ready") %>"
+  data-<%= stimulus_controller %>-needs-column-message-value="<%= t("active_admin.batched_export_page.select_at_least_one_column") %>"
+>
+  <%= render "active_admin/batched_export/summary", styles: styles %>
+  <%= render "active_admin/batched_export/columns", styles: styles, stimulus_controller: stimulus_controller %>
+  <%= render "active_admin/batched_export/filters", styles: styles %>
+  <%= render "active_admin/batched_export/progress", styles: styles, stimulus_controller: stimulus_controller %>
+  <%= render "active_admin/batched_export/actions", styles: styles, stimulus_controller: stimulus_controller %>
+</div>

@@ -1,0 +1,14 @@
+<div class="<%= styles[:progress_wrap] %>" data-<%= stimulus_controller %>-target="progressWrap">
+  <div class="<%= styles[:progress_status_row] %>">
+    <span data-<%= stimulus_controller %>-target="status"><%= t("active_admin.batched_export_page.preparing") %></span>
+    <span data-<%= stimulus_controller %>-target="fraction"></span>
+  </div>
+  <progress
+    value="0"
+    max="100"
+    class="<%= styles[:progress_bar] %>"
+    data-<%= stimulus_controller %>-target="bar"
+  ></progress>
+</div>
+
+<p class="<%= styles[:error] %>" data-<%= stimulus_controller %>-target="error"></p>

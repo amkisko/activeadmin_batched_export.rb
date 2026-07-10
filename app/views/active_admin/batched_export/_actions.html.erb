@@ -1,0 +1,25 @@
+<div class="<%= styles[:actions] %>">
+  <button
+    type="button"
+    class="<%= styles[:primary_button] %>"
+    data-action="<%= stimulus_controller %>#start"
+    data-<%= stimulus_controller %>-target="start"
+  >
+    <%= t("active_admin.batched_export_page.start") %>
+  </button>
+  <button
+    type="button"
+    class="<%= styles[:secondary_button] %>"
+    data-<%= stimulus_controller %>-target="save"
+    data-action="<%= stimulus_controller %>#save"
+    disabled
+  >
+    <%= t("active_admin.batched_export_page.save_file") %>
+  </button>
+  <%= link_to t("active_admin.batched_export_page.back_to_list"),
+        url_for(
+          action: :index,
+          params: request.query_parameters.except(:format, :commit, :page, :batch_page, :export_meta)
+        ),
+        class: styles[:back_link] %>
+</div>

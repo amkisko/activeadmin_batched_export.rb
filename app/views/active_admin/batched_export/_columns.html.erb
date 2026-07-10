@@ -1,0 +1,21 @@
+<% if @batched_export_csv_columns.present? %>
+  <div class="<%= styles[:card] %>">
+    <h3 class="<%= styles[:card_title] %>"><%= t("active_admin.batched_export_page.columns_title") %></h3>
+    <p class="<%= styles[:hint] %>"><%= t("active_admin.batched_export_page.columns_hint") %></p>
+    <div class="<%= styles[:column_grid] %>">
+      <% @batched_export_csv_columns.each do |column| %>
+        <label class="<%= styles[:column_label] %>">
+          <input
+            type="checkbox"
+            name="export_columns[]"
+            value="<%= column[:index] %>"
+            checked
+            class="<%= styles[:column_checkbox] %>"
+            data-<%= stimulus_controller %>-target="columnCheckbox"
+          />
+          <span><%= column[:label] %></span>
+        </label>
+      <% end %>
+    </div>
+  </div>
+<% end %>

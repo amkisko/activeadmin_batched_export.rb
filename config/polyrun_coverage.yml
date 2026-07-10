@@ -1,0 +1,7 @@
+track_under:
+  - lib
+minimum_line_percent: 50
+report_formats:
+  - html
+  - cobertura
+  - console

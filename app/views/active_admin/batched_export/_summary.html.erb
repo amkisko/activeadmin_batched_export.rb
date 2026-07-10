@@ -1,0 +1,40 @@
+<% preview = @batched_export_preview %>
+<div class="<%= styles[:card] %>">
+  <h3 class="<%= styles[:card_title] %>"><%= t("active_admin.batched_export_page.summary_title") %></h3>
+  <table class="<%= styles[:table] %>">
+    <tbody class="<%= styles[:table_body] %>">
+      <tr class="<%= styles[:table_row] %>">
+        <th scope="row" class="<%= styles[:table_header] %>"><%= t("active_admin.batched_export_page.resource_label") %></th>
+        <td class="<%= styles[:table_cell] %>"><%= active_admin_config.plural_resource_label %></td>
+      </tr>
+      <tr class="<%= styles[:table_row] %>">
+        <th scope="row" class="<%= styles[:table_header] %>"><%= t("active_admin.batched_export_page.scope_label") %></th>
+        <td class="<%= styles[:table_cell] %>"><%= current_scope ? scope_name(current_scope) : "—" %></td>
+      </tr>
+      <tr class="<%= styles[:table_row] %>">
+        <th scope="row" class="<%= styles[:table_header] %>"><%= t("active_admin.batched_export_page.sort_label") %></th>
+        <td class="<%= styles[:table_cell] %>"><%= @batched_export_sort_description %></td>
+      </tr>
+      <tr class="<%= styles[:table_row] %>">
+        <th scope="row" class="<%= styles[:table_header] %>"><%= t("active_admin.batched_export_page.format_label") %></th>
+        <td class="<%= styles[:table_cell] %>"><%= preview[:export_format].to_s.upcase %></td>
+      </tr>
+      <tr class="<%= styles[:table_row] %>">
+        <th scope="row" class="<%= styles[:table_header] %>"><%= t("active_admin.batched_export_page.total_rows_label") %></th>
+        <td class="<%= styles[:table_cell] %>"><%= number_with_delimiter(preview[:total_count]) %></td>
+      </tr>
+      <tr class="<%= styles[:table_row] %>">
+        <th scope="row" class="<%= styles[:table_header] %>"><%= t("active_admin.batched_export_page.batches_label") %></th>
+        <td class="<%= styles[:table_cell] %>"><%= number_with_delimiter(preview[:total_batches]) %></td>
+      </tr>
+      <tr class="<%= styles[:table_row] %>">
+        <th scope="row" class="<%= styles[:table_header] %>"><%= t("active_admin.batched_export_page.batch_size_label") %></th>
+        <td class="<%= styles[:table_cell] %>"><%= number_with_delimiter(preview[:batch_size]) %></td>
+      </tr>
+      <tr>
+        <th scope="row" class="<%= styles[:table_header] %>"><%= t("active_admin.batched_export_page.filename_label") %></th>
+        <td class="<%= styles[:table_cell_mono] %>"><%= preview[:filename] %></td>
+      </tr>
+    </tbody>
+  </table>
+</div>

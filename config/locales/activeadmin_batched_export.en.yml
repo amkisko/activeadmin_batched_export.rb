@@ -1,0 +1,29 @@
+en:
+  active_admin:
+    batched_export: Export download
+    batched_export_page:
+      back_to_list: Back to list
+      batch_size_label: Rows per batch
+      batches_label: Download batches
+      blurb: The export loads in separate batches (one HTTP request per batch). Rows are not shown on this page. When loading finishes, use Save file to store the export on your computer.
+      columns_hint: All columns are included by default. Uncheck any you do not need.
+      columns_title: Columns to include
+      empty: There is nothing to export for this filter.
+      failed_batch: "Could not load batch %{page}: %{message}"
+      filename_label: File name
+      format_label: File format
+      large_export_warning: This export is large. The browser keeps the full file in memory before you save it. Narrow filters or export fewer columns if the tab becomes slow.
+      loading_batch: Loading batch %{current} of %{total}
+      preparing: Preparing…
+      ready: Ready. You can save the file now.
+      resource_label: Resource
+      save_file: Save file
+      scope_label: Scope
+      select_at_least_one_column: Select at least one column to export.
+      sort_ascending: ascending
+      sort_descending: descending
+      sort_label: Sort order
+      start: Load export
+      summary_title: What you are exporting
+      total_rows_label: Rows to export
+      unknown_macro: Unknown export macro
