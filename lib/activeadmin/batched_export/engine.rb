@@ -19,10 +19,6 @@ module ActiveAdmin
       initializer "activeadmin_batched_export.assets" do |app|
         assets_path = root.join("app/assets")
         app.config.importmap.cache_sweepers << assets_path.join("controllers") if app.config.respond_to?(:importmap)
-
-        next unless app.config.respond_to?(:assets)
-
-        app.config.assets.precompile << "activeadmin_batched_export/batched_export_controller.js"
       end
 
       initializer "activeadmin_batched_export.importmap", after: :load_config_initializers do
