@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.1.0 (2026-07-06)
+## 0.1.0 (2026-07-10)
 
 - Initial public release of batched ActiveAdmin export workspace.
 - Batched CSV, JSON, and XML export with Stimulus client assembly.
