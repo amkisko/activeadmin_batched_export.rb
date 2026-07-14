@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-ActiveAdmin.register MacroProbe do
+ActiveAdmin.register CatalogItem do
   actions :index
 
   index download_links: [:csv] do
@@ -8,8 +8,6 @@ ActiveAdmin.register MacroProbe do
   end
 
   csv do
-    column :name, macro: :missing_macro
+    column :name
   end
-
-  batched_export
 end

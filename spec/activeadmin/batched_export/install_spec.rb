@@ -18,4 +18,20 @@ RSpec.describe ActiveAdmin::BatchedExport::Install do
     expect(batched_export_actions.length).to eq(1)
     expect(order_resource.controller.included_modules).to include(ActiveAdmin::BatchedExport::ControllerMethods)
   end
+
+  it "skips resources without batched export enabled" do
+    catalog_item_resource =
+      ActiveAdmin.application.namespaces[:admin].resources.find do |resource|
+        resource.resource_name.name == "CatalogItem"
+      end
+
+    batched_export_actions =
+      catalog_item_resource.collection_actions.select { |action| action.name.to_sym == :batched_export }
+
+    expect(batched_export_actions).to be_empty
+  end
+
+  it "exposes route helpers for enabled resources after install" do
+    expect(Rails.application.routes.url_helpers).to respond_to(:batched_export_admin_orders_path)
+  end
 end

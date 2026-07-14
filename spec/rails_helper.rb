@@ -21,6 +21,14 @@ ActiveRecord::Base.connection_pool.with_connection do |connection|
     table.string :name, null: false
     table.timestamps
   end
+
+  next if connection.table_exists?(:catalog_items)
+
+  ActiveRecord::Schema.verbose = false
+  connection.create_table :catalog_items, force: :cascade do |table|
+    table.string :name, null: false
+    table.timestamps
+  end
 end
 
 require "rspec/rails"
@@ -28,7 +36,6 @@ require "activeadmin"
 require "activeadmin_batched_export"
 
 ActiveAdmin.application.load!
-ActiveAdmin::BatchedExport.install!
 Rails.application.reload_routes!
 
 RSpec.configure do |config|

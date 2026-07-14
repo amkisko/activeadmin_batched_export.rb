@@ -17,6 +17,10 @@ RSpec.describe ActiveAdmin::BatchedExport::Configuration do
     expect(configuration.large_export_row_threshold).to eq(25_000)
   end
 
+  it "defaults batched export to opt-in" do
+    expect(configuration.default_enabled).to be(false)
+  end
+
   it "registers custom macros" do
     configuration.register_macro(:uppercase, ->(value, _record, _column) { value.to_s.upcase })
     expect(configuration.registered_macros[:uppercase].call("abc", nil, nil)).to eq("ABC")

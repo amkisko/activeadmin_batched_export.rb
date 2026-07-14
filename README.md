@@ -82,7 +82,7 @@ end
 
 ```ruby
 ActiveAdmin.register User do
-  batched_export enabled: true, column_selection: true, batch_size: 500,
+  batched_export column_selection: true, batch_size: 500,
     includes: [:account],
     macros: {email: :mask_email, phone: :mask_phone}
 
@@ -94,7 +94,7 @@ ActiveAdmin.register User do
 end
 ```
 
-Set `batched_export enabled: false` to skip batched export for a resource.
+Call `batched_export` on a resource to enable it. The DSL call itself opts the resource in, so you can wrap it in a condition when enablement should vary. Set `batched_export enabled: false` only when you need to override a global `config.default_enabled = true`. Resources without a `batched_export` call stay off unless `default_enabled` is true.
 
 ## Built-in export macros
 

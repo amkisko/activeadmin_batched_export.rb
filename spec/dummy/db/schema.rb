@@ -10,4 +10,9 @@ ActiveRecord::Schema.define(version: 20_260_706_120_000) do
     t.string :name, null: false
     t.timestamps
   end
+
+  create_table :catalog_items, force: :cascade do |t|
+    t.string :name, null: false
+    t.timestamps
+  end
 end

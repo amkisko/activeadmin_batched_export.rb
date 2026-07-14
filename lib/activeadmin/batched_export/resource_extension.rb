@@ -11,11 +11,21 @@ module ActiveAdmin
         @batched_export_settings = value || {}
       end
 
+      def batched_export_configured?
+        @batched_export_configured == true
+      end
+
+      def batched_export_configured=(value)
+        @batched_export_configured = value
+      end
+
       def batched_export_enabled?
         settings = batched_export_settings
         if settings.key?(:enabled) || settings.key?("enabled")
           return settings[:enabled] != false && settings["enabled"] != false
         end
+
+        return true if batched_export_configured?
 
         BatchedExport.config.default_enabled
       end
@@ -55,6 +65,7 @@ module ActiveAdmin
 
     module ResourceDSL
       def batched_export(**options)
+        config.batched_export_configured = true
         config.batched_export_settings = options
       end
     end

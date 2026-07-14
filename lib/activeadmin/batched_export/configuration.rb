@@ -15,7 +15,7 @@ module ActiveAdmin
         @max_batch_size = 10_000
         @large_export_row_threshold = 25_000
         @stimulus_controller = "activeadmin-batched-export--batched-export"
-        @default_enabled = true
+        @default_enabled = false
         @default_column_selection = true
         @filename_proc = nil
         @registered_macros = {}

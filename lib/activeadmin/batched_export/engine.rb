@@ -37,6 +37,30 @@ module ActiveAdmin
         I18n.load_path << root.join("config/locales/activeadmin_batched_export.en.yml")
       end
 
+      initializer "activeadmin_batched_export.view_overrides", after: "activeadmin_batched_export.load_lib" do
+        views_path = root.join("app/views").to_s
+
+        ActiveSupport.on_load(:active_admin_controller) do
+          prepend_view_path(views_path)
+        end
+
+        if defined?(ActiveAdmin::BaseController)
+          ActiveAdmin::BaseController.prepend_view_path(views_path)
+        end
+      end
+
+      initializer "activeadmin_batched_export.after_load", after: :load_config_initializers do
+        next unless defined?(ActiveAdmin) && ActiveAdmin.respond_to?(:after_load)
+
+        ActiveAdmin.after_load do
+          ActiveAdmin::BatchedExport::Install.call if defined?(ActiveAdmin::BatchedExport::Install)
+        end
+      end
+
+      initializer "activeadmin_batched_export.install", after: "active_admin.routes" do
+        ActiveAdmin::BatchedExport::Install.call if defined?(ActiveAdmin)
+      end
+
       config.to_prepare do
         ActiveAdmin::BatchedExport::Install.call if defined?(ActiveAdmin)
       end

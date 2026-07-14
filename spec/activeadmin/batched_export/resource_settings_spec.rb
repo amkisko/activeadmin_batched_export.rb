@@ -37,6 +37,21 @@ RSpec.describe ActiveAdmin::BatchedExport::ResourceSettings do
       resource.batched_export_settings = {enabled: false}
       expect(resource.batched_export_enabled?).to be(false)
     end
+
+    it "enables export when the batched_export DSL was used" do
+      ActiveAdmin::BatchedExport.configure { |config| config.default_enabled = false }
+      resource.batched_export_configured = true
+      resource.batched_export_settings = {batch_size: 50}
+
+      expect(resource.batched_export_enabled?).to be(true)
+    end
+
+    it "disables export when configured with enabled: false" do
+      resource.batched_export_configured = true
+      resource.batched_export_settings = {enabled: false}
+
+      expect(resource.batched_export_enabled?).to be(false)
+    end
   end
 
   describe "#batched_export_column_selection?" do

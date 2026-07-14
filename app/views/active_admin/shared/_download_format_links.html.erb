@@ -1,7 +1,13 @@
 <% export_base_params = request.query_parameters.except(:format, :commit, :page, :batch_page, :export_meta) %>
 <div>
   <span><%= I18n.t("active_admin.download") %></span>
-  <% formats.each do |format| %>
-    <%= link_to format.upcase, url_for(action: :batched_export, params: export_base_params.merge(export_format: format)) %>
+  <% if active_admin_config.batched_export_enabled? %>
+    <% formats.each do |format| %>
+      <%= link_to format.upcase, url_for(action: :batched_export, params: export_base_params.merge(export_format: format)) %>
+    <% end %>
+  <% else %>
+    <% formats.each do |format| %>
+      <%= link_to format.upcase, url_for(params: export_base_params, format: format) %>
+    <% end %>
   <% end %>
 </div>
