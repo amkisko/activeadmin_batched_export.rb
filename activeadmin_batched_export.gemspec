@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = "Replaces long-lived ActiveAdmin index downloads with a batched export workspace, customizable views, and export column macros."
   spec.license = "MIT"
   spec.platform = Gem::Platform::RUBY
-  spec.required_ruby_version = ">= 3.2.0"
+  spec.required_ruby_version = ">= 3.4"
 
   repository_url = "https://github.com/amkisko/activeadmin_batched_export.rb"
 

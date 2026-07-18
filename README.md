@@ -185,7 +185,7 @@ bundle exec rubocop
 bundle exec polyrun parallel-rspec --workers 5 --merge-failures
 ```
 
-Matrixed Rails versions use [Appraisal](https://github.com/thoughtbot/appraisal): `gemfiles/rails72.gemfile`, `rails8ruby34.gemfile`, and `rails8truffleruby.gemfile`. Run `bundle exec appraisal rspec` to execute RSpec in each gemfile context.
+Matrixed Rails versions use [Appraisal](https://github.com/thoughtbot/appraisal): `gemfiles/rails72.gemfile` and `rails8ruby34.gemfile`. Run `bundle exec appraisal rspec` to execute RSpec in each gemfile context.
 
 Shared agent guidance is managed with [pray](https://github.com/kiskolabs/pray) via `Prayfile`.
 
@@ -194,6 +194,19 @@ Shared agent guidance is managed with [pray](https://github.com/kiskolabs/pray) 
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports and pull requests are welcome at https://github.com/amkisko/activeadmin_batched_export.rb/issues
+
+## Links
+
+- [GitHub](https://github.com/amkisko/activeadmin_batched_export.rb)
+- [GitLab](https://gitlab.com/amkisko/activeadmin_batched_export.rb)
+- [RubyGems](https://rubygems.org/gems/activeadmin_batched_export)
+- [Versions Atom](https://rubygems.org/gems/activeadmin_batched_export/versions.atom) (feed id `11574013576629`)
+- [libraries.io](https://libraries.io/rubygems/activeadmin_batched_export)
+- [Deps.dev](https://deps.dev/rubygems/activeadmin_batched_export)
+- [SonarCloud](https://sonarcloud.io/project/overview?id=amkisko_activeadmin_batched_export.rb)
+- [Snyk](https://snyk.io/test/github/amkisko/activeadmin_batched_export.rb)
+- [Codecov](https://app.codecov.io/github/amkisko/activeadmin_batched_export.rb)
+- [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/amkisko/activeadmin_batched_export.rb)
 
 ## License
 
