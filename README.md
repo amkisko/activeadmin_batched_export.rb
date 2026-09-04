@@ -201,7 +201,7 @@ From the gem root:
 bundle install
 bundle exec appraisal install
 bundle exec rubocop
-node --test spec/javascript/chunk_assembly.test.mjs
+make test-javascript
 bundle exec polyrun parallel-rspec --workers 5 --merge-failures
 ```
 

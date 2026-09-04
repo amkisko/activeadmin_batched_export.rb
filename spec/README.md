@@ -18,14 +18,16 @@ Focused runs:
 
 ```bash
 bundle exec rspec spec/
+make test-javascript
 node --test spec/javascript/chunk_assembly.test.mjs
 ```
 
-See `polyrun.yml`. `make test` runs `hooks.before_suite` before specs.
+See `polyrun.yml` for RSpec shards and `polyrun.javascript.yml` for JavaScript shards. `make test` runs `hooks.before_suite` before specs. JavaScript files under `spec/javascript` matching `*.{test,spec}.{mjs,js,cjs}` are discovered the same way `spec/**/*_spec.rb` is.
 
 ## Layout
 
 - `spec/` — export batching and ActiveAdmin integration specs
+- `spec/javascript/` — Node test runner files for export assembly helpers
 
 ## Guidelines
 

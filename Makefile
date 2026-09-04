@@ -1,4 +1,4 @@
-.PHONY: release lint test clean
+.PHONY: release lint test test-javascript clean
 
 release:
 	ruby usr/bin/release.rb
@@ -7,8 +7,10 @@ lint:
 	bundle exec rubocop
 	bundle exec rbs validate
 
-test: lint
-	node --test spec/javascript/chunk_assembly.test.mjs
+test-javascript:
+	bundle exec polyrun -c polyrun.javascript.yml run-shards --workers 5 -- node --test
+
+test: lint test-javascript
 	bundle exec polyrun parallel-rspec --workers 5 --merge-failures
 
 clean:
