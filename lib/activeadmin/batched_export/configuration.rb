@@ -6,14 +6,16 @@ require "activeadmin/batched_export/export_macro_catalog"
 module ActiveAdmin
   module BatchedExport
     class Configuration
-      attr_accessor :styles, :batch_size, :max_batch_size, :large_export_row_threshold, :stimulus_controller,
-        :default_enabled, :default_column_selection
+      attr_accessor :styles, :batch_size, :max_batch_size, :large_export_row_threshold, :max_export_rows,
+        :snapshot_ttl, :stimulus_controller, :default_enabled, :default_column_selection
 
       def initialize
         @styles = Styles.new
         @batch_size = 1000
         @max_batch_size = 10_000
         @large_export_row_threshold = 25_000
+        @max_export_rows = nil
+        @snapshot_ttl = 86_400
         @stimulus_controller = "activeadmin-batched-export--batched-export"
         @default_enabled = false
         @default_column_selection = true

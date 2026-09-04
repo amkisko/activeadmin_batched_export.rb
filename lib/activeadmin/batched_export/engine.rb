@@ -12,13 +12,23 @@ module ActiveAdmin
         require "activeadmin/batched_export/export_macro_resolver"
         require "activeadmin/batched_export/configuration"
         require "activeadmin/batched_export/resource_extension"
+        require "activeadmin/batched_export/errors"
+        require "activeadmin/batched_export/export_cursor"
+        require "activeadmin/batched_export/keyset_page"
+        require "activeadmin/batched_export/snapshot_row"
+        require "activeadmin/batched_export/snapshot_page"
+        require "activeadmin/batched_export/row_sanitizer"
+        require "activeadmin/batched_export/chunk_renderer"
         require "activeadmin/batched_export/controller_methods"
         require "activeadmin/batched_export/install"
       end
 
       initializer "activeadmin_batched_export.assets" do |app|
         assets_path = root.join("app/assets")
-        app.config.importmap.cache_sweepers << assets_path.join("controllers") if app.config.respond_to?(:importmap)
+        next unless app.config.respond_to?(:importmap)
+
+        app.config.importmap.cache_sweepers << assets_path.join("controllers")
+        app.config.importmap.cache_sweepers << assets_path.join("javascripts")
       end
 
       initializer "activeadmin_batched_export.importmap", after: :load_config_initializers do
@@ -27,6 +37,8 @@ module ActiveAdmin
         pin_controller = proc do |importmap|
           importmap.pin "controllers/activeadmin_batched_export/batched_export_controller",
             to: "activeadmin_batched_export/batched_export_controller.js"
+          importmap.pin "activeadmin_batched_export/chunk_assembly",
+            to: "activeadmin_batched_export/chunk_assembly.mjs"
         end
 
         Rails.application.importmap.draw(&pin_controller)

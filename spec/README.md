@@ -18,6 +18,7 @@ Focused runs:
 
 ```bash
 bundle exec rspec spec/
+node --test spec/javascript/chunk_assembly.test.mjs
 ```
 
 See `polyrun.yml`. `make test` runs `hooks.before_suite` before specs.

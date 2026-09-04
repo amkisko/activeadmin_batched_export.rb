@@ -9,6 +9,15 @@
   </button>
   <button
     type="button"
+    class="<%= styles[:cancel_button] %> hidden"
+    data-<%= stimulus_controller %>-target="cancel"
+    data-action="<%= stimulus_controller %>#cancel"
+    disabled
+  >
+    <%= t("active_admin.batched_export_page.cancel") %>
+  </button>
+  <button
+    type="button"
     class="<%= styles[:secondary_button] %>"
     data-<%= stimulus_controller %>-target="save"
     data-action="<%= stimulus_controller %>#save"
@@ -19,7 +28,9 @@
   <%= link_to t("active_admin.batched_export_page.back_to_list"),
         url_for(
           action: :index,
-          params: request.query_parameters.except(:format, :commit, :page, :batch_page, :export_meta)
+          params: request.query_parameters.except(
+            :format, :commit, :page, :batch_page, :export_meta, :export_cursor, :export_snapshot
+          )
         ),
         class: styles[:back_link] %>
 </div>

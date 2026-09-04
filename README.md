@@ -4,11 +4,11 @@
 
 Batched CSV, JSON, and XML export workspace for ActiveAdmin 4.
 
-Replaces single long-lived index downloads with a workspace page that loads filtered data in sequential HTTP batches, then offers one client-side file download.
+Replaces single long-lived index downloads with a workspace page that loads filtered data in sequential batches, then offers one client-side file download.
 
 ## Requirements
 
-- Ruby 3.2+
+- Ruby 3.4+
 - Rails 7.1+
 - ActiveAdmin 4.0.0.beta13+
 - importmap-rails and Stimulus (ActiveAdmin 4 default)
@@ -39,6 +39,22 @@ bundle install
 
 The engine registers routes, views, importmap pins, and install hooks automatically. Optional host overrides go in `config/initializers/activeadmin_batched_export.rb`.
 
+To freeze export ids across batches (RFC-0003), create this table in the host app:
+
+```ruby
+create_table :active_admin_batched_export_snapshot_rows do |t|
+  t.string :token, null: false
+  t.string :resource_type, null: false
+  t.bigint :record_id, null: false
+  t.integer :position, null: false
+  t.datetime :created_at, null: false
+end
+add_index :active_admin_batched_export_snapshot_rows, [:token, :position], unique: true
+add_index :active_admin_batched_export_snapshot_rows, :created_at
+```
+
+Without that table, batches walk a live keyset cursor. With it, the first batch stores filtered primary keys and later batches join live rows in freeze order. The token is not an access grant: rows still load through `find_collection`.
+
 Enable download formats per resource:
 
 ```ruby
@@ -62,6 +78,8 @@ ActiveAdmin::BatchedExport.configure do |config|
   config.batch_size = 1000
   config.max_batch_size = 10_000
   config.large_export_row_threshold = 25_000
+  config.max_export_rows = nil
+  config.snapshot_ttl = 86_400
   config.stimulus_controller = "activeadmin-batched-export--batched-export"
 
   config.styles = ActiveAdmin::BatchedExport::Styles.new(
@@ -121,6 +139,7 @@ ActiveAdmin::BatchedExport.configure do |config|
     card: "rounded-lg border border-slate-200 bg-slate-50 p-6",
     primary_button: "btn btn-primary",
     secondary_button: "btn btn-outline",
+    cancel_button: "btn btn-ghost",
     back_link: "link link-primary"
   )
 end
@@ -128,7 +147,7 @@ end
 
 Override only the keys you need; unset keys keep gem defaults (light and dark Tailwind classes).
 
-Available keys: `workspace`, `card`, `card_title`, `table`, `table_body`, `table_row`, `table_header`, `table_cell`, `table_cell_mono`, `hint`, `column_grid`, `column_label`, `column_checkbox`, `heading`, `progress_wrap`, `progress_bar`, `progress_status_row`, `error`, `warning`, `actions`, `primary_button`, `secondary_button`, `back_link`.
+Available keys: `workspace`, `card`, `card_title`, `table`, `table_body`, `table_row`, `table_header`, `table_cell`, `table_cell_mono`, `hint`, `column_grid`, `column_label`, `column_checkbox`, `heading`, `progress_wrap`, `progress_bar`, `progress_status_row`, `error`, `warning`, `actions`, `primary_button`, `secondary_button`, `cancel_button`, `back_link`.
 
 ### Override partials
 
@@ -139,7 +158,7 @@ Copy any partial from the gem into `app/views/active_admin/batched_export/` in t
 - `_columns.html.erb`
 - `_filters.html.erb`
 - `_progress.html.erb`
-- `_actions.html.erb` — export and back buttons
+- `_actions.html.erb` — load, cancel, save, and back buttons
 
 ### Stimulus controller
 
@@ -157,20 +176,20 @@ See [examples/custom_theme/README.md](examples/custom_theme/README.md) for local
 
 ## Stimulus controller and assets
 
-The engine pins `controllers/activeadmin_batched_export/batched_export_controller` on both the host and ActiveAdmin importmaps. Include the gem asset path in your ActiveAdmin importmap cache sweeper when developing locally.
+The engine pins `controllers/activeadmin_batched_export/batched_export_controller` and `activeadmin_batched_export/chunk_assembly` on both the host and ActiveAdmin importmaps. Include the gem `app/assets/controllers` and `app/assets/javascripts` paths in your ActiveAdmin importmap cache sweeper when developing locally.
 
 ## How it works
 
 1. Index download links route to `batched_export` instead of synchronous format URLs.
 2. Workspace shows filter context, optional column checkboxes, and batch metadata.
-3. Stimulus fetches `export_meta` JSON, then each `batch_page` chunk.
-4. User saves the assembled Blob locally.
+3. Load export always refetches `export_meta` JSON for a progress estimate, then walks chunks with `export_cursor` / `X-Batched-Export-Next` until that header is absent. When the freeze table exists, the first batch also returns `X-Batched-Export-Snapshot` and later chunks send `export_snapshot` with the cursor.
+4. User saves the assembled Blob locally. Cancel keeps an incomplete file when any chunks already arrived.
 
-Batched requests limit server memory per request; the browser still holds the full assembled file before save. Very large exports can exhaust tab memory. Tune `batch_size`, `max_batch_size`, and `large_export_row_threshold` for your data width and row counts. The workspace shows a warning when row count reaches the threshold.
+Batched requests limit server memory per request; the browser still holds the full assembled file before save. Very large exports can exhaust tab memory. Tune `batch_size`, `max_batch_size`, and `large_export_row_threshold` for your data width and row counts. The workspace shows a warning when row count reaches the threshold. Set `max_export_rows` to refuse a collection larger than that count (`over_max` on meta, 400 on the first batch).
 
-Each batch page uses offset pagination on the filtered collection. Later batches can slow down on very large tables; narrowing filters or raising `batch_size` within `max_batch_size` reduces batch count.
+When the freeze table exists, the first batch stores filtered primary keys in NULL-safe order (RFC-0003). Later batches walk those positions and join live cells. Inserts after freeze are omitted. Updates after freeze appear. Deleted freeze ids are skipped. Without the table, each chunk continues after the last returned sort key and primary key (RFC-0002) and is not a point-in-time snapshot. Custom `order_by` expressions fall back to primary key descending. NULL sort keys sort last in both directions.
 
-JSON and XML exports use the same column definitions as `csv` blocks. JSON batches return arrays of row objects; the client merges them into one array. XML batches return record fragments; the client wraps them in a single `<export>` root. Shapes differ from ActiveAdmin synchronous JSON/XML downloads.
+JSON and XML exports use the same column definitions as `csv` blocks. JSON batches return arrays of row objects; the client concatenates those arrays as text into one array. XML batches return record fragments; the client wraps them in a single `<export>` root. Shapes differ from ActiveAdmin synchronous JSON/XML downloads.
 
 Authorization follows ActiveAdmin `download_links` and `authorize!` on the resource. Disable a format with `index download_links: [:csv]` (or `false` to hide exports). Batch endpoints reject formats not listed on the resource index presenter.
 
@@ -182,6 +201,7 @@ From the gem root:
 bundle install
 bundle exec appraisal install
 bundle exec rubocop
+node --test spec/javascript/chunk_assembly.test.mjs
 bundle exec polyrun parallel-rspec --workers 5 --merge-failures
 ```
 

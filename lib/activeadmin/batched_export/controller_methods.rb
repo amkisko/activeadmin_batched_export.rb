@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
-require "builder"
-require "csv"
+require "activeadmin/batched_export/chunk_renderer"
+require "activeadmin/batched_export/errors"
+require "activeadmin/batched_export/export_cursor"
+require "activeadmin/batched_export/keyset_page"
+require "activeadmin/batched_export/snapshot_page"
 
 module ActiveAdmin
   module BatchedExport
     module ControllerMethods
       extend ActiveSupport::Concern
+      include ChunkRenderer
 
       def batched_export
         authorize! ActiveAdmin::Authorization::READ, active_admin_config.resource_class
@@ -18,29 +22,64 @@ module ActiveAdmin
           return render(json: batched_export_meta(export_format))
         end
 
-        batch_page = params[:batch_page].to_i
-        if batch_page.positive?
-          if request.format.symbol != export_format
-            head :not_acceptable
-            return
-          end
-          ensure_batch_download_format_allowed!(export_format)
-          page = page_relation(batch_page)
-          if page.out_of_range?
-            head :not_found
-            return
-          end
-          begin
-            body = batched_export_batch_body(export_format, batch_page, page: page)
-          rescue ExportMacroCatalog::UnknownMacroError
-            return render(
-              plain: I18n.t("active_admin.batched_export_page.unknown_macro"),
-              status: :unprocessable_content
-            )
-          end
-          return render(plain: body, content_type: batch_content_type(export_format))
-        end
+        return render_export_batch(export_format) if export_batch_request?(export_format)
 
+        render_export_workspace(export_format)
+      end
+
+      private
+
+      def normalized_export_format
+        format_name = params[:export_format].to_s.downcase
+        format_name = "csv" if format_name.blank?
+        unless %w[csv xml json].include?(format_name)
+          render(plain: "Invalid export format", status: :bad_request)
+          return nil
+        end
+        format_name.to_sym
+      end
+
+      def export_batch_request?(export_format)
+        %i[csv json xml].include?(request.format.symbol) &&
+          request.format.symbol == export_format &&
+          params[:export_meta].blank?
+      end
+
+      def render_export_batch(export_format)
+        ensure_batch_download_format_allowed!(export_format)
+        refuse_over_max_export_rows! if starting_export_walk?
+        field, direction = batched_export_sort_pair
+        cursor = decode_export_cursor(field: field, direction: direction)
+        page = snapshot_export_page(field: field, direction: direction, cursor: cursor)
+        response.set_header(ExportCursor::NEXT_HEADER, page.next_cursor) if page.next_cursor
+        response.set_header(SnapshotPage::HEADER, page.snapshot_token) if page.snapshot_token
+        body = batched_export_batch_body(export_format, page.records, first_page: page.first_page)
+        render(plain: body, content_type: batch_content_type(export_format))
+      rescue ExportCursor::Invalid
+        render(plain: "Invalid export cursor", status: :bad_request)
+      rescue InvalidExportSnapshotError
+        render(
+          plain: I18n.t("active_admin.batched_export_page.unavailable_session"),
+          status: :bad_request
+        )
+      rescue ExportTooLargeError
+        render(
+          plain: I18n.t("active_admin.batched_export_page.over_max_rows"),
+          status: :bad_request
+        )
+      rescue UnresolvableExportColumnsError
+        render(
+          plain: I18n.t("active_admin.batched_export_page.select_at_least_one_column"),
+          status: :bad_request
+        )
+      rescue ExportMacroCatalog::UnknownMacroError
+        render(
+          plain: I18n.t("active_admin.batched_export_page.unknown_macro"),
+          status: :unprocessable_content
+        )
+      end
+
+      def render_export_workspace(export_format)
         ensure_batch_download_format_allowed!(export_format)
         @batched_export_format = export_format
         @batched_export_meta_url = batched_export_url_for(
@@ -57,20 +96,10 @@ module ActiveAdmin
         render "active_admin/batched_export/workspace", layout: "active_admin"
       end
 
-      private
-
-      def normalized_export_format
-        format_name = params[:export_format].to_s.downcase
-        format_name = "csv" if format_name.blank?
-        unless %w[csv xml json].include?(format_name)
-          render(plain: "Invalid export format", status: :bad_request)
-          return nil
-        end
-        format_name.to_sym
-      end
-
       def batched_export_url_for(request_format:, extra_params: {})
-        query = request.query_parameters.except(:format, :commit, :page, :batch_page, :export_meta)
+        query = request.query_parameters.except(
+          :format, :commit, :page, :batch_page, :export_meta, :export_cursor, :export_snapshot
+        )
         hash = query.respond_to?(:to_unsafe_h) ? query.to_unsafe_h : query.to_h
         hash = hash.merge(extra_params.stringify_keys)
         url_for(action: :batched_export, format: request_format, params: hash, only_path: true)
@@ -92,14 +121,32 @@ module ActiveAdmin
         first_page = paginate(base, 1, effective_batch_size)
         total_count = first_page.total_count
         total_batches = total_count.zero? ? 0 : first_page.total_pages
+        cap = BatchedExport.config.max_export_rows
         {
           export_format: export_format,
           total_count: total_count,
           total_batches: total_batches,
           batch_size: effective_batch_size,
           filename: export_filename(export_format),
-          large_export: total_count >= BatchedExport.config.large_export_row_threshold
+          large_export: total_count >= BatchedExport.config.large_export_row_threshold,
+          over_max: cap.present? && total_count > cap,
+          max_export_rows: cap
         }
+      end
+
+      def export_filtered_count
+        paginate(find_collection(except: [:pagination]), 1, effective_batch_size).total_count
+      end
+
+      def starting_export_walk?
+        params[:export_snapshot].blank? && params[:export_cursor].blank?
+      end
+
+      def refuse_over_max_export_rows!
+        cap = BatchedExport.config.max_export_rows
+        return if cap.blank?
+
+        raise ExportTooLargeError if export_filtered_count > cap
       end
 
       def export_filename(format_symbol)
@@ -112,15 +159,6 @@ module ActiveAdmin
         "#{base}-#{Time.zone.now.to_date}.#{format_symbol}"
       end
 
-      def batched_export_batch_body(export_format, batch_page, page: nil)
-        case export_format
-        when :csv then batched_csv_chunk(batch_page, page: page)
-        when :json then batched_json_chunk(batch_page, page: page)
-        when :xml then batched_xml_chunk(batch_page, page: page)
-        else ""
-        end
-      end
-
       def batch_content_type(export_format)
         case export_format
         when :csv then "text/csv; charset=utf-8"
@@ -130,84 +168,46 @@ module ActiveAdmin
         end
       end
 
-      def batched_csv_chunk(batch_page, page: nil)
-        builder = active_admin_config.csv_builder
-        options = builder.options.dup
-        csv_options = options.except(:encoding_options, :humanize_name, :byte_order_mark)
-        columns = batched_export_filter_columns(builder.exec_columns(view_context))
-        buffer = +""
-        byte_order_mark = options[:byte_order_mark]
-        buffer << byte_order_mark if batch_page == 1 && byte_order_mark
-        if batch_page == 1 && options.fetch(:column_names, true)
-          header_line = columns.map do |column|
-            ActiveAdmin::Sanitizer.sanitize(builder.send(:encode, column.name, options))
-          end
-          buffer << CSV.generate_line(header_line, **csv_options)
+      def batched_export_sort_pair
+        model = active_admin_config.resource_class
+        order_param = params[:order].presence || active_admin_config.sort_order
+        clause = ActiveAdmin::OrderClause.new(active_admin_config, order_param)
+        field = clause.valid? ? clause.field.to_s.split(".").last : nil
+        if field && model.column_names.include?(field)
+          [field, clause.order.to_s]
+        else
+          [model.primary_key.to_s, "desc"]
         end
-        paginated_export_rows(batch_page, page: page) do |resource|
-          row = builder.build_row(resource, columns, options)
-          row = apply_export_macros(row, columns, resource)
-          buffer << CSV.generate_line(row, **csv_options)
-        end
-        buffer
       end
 
-      def batched_json_chunk(batch_page, page: nil)
-        builder = active_admin_config.csv_builder
-        options = builder.options
-        columns = batched_export_filter_columns(builder.exec_columns(view_context))
-        names = columns.map(&:name)
-        rows = []
-        paginated_export_rows(batch_page, page: page) do |resource|
-          row = apply_export_macros(builder.build_row(resource, columns, options), columns, resource)
-          rows << names.zip(row).to_h
+      def decode_export_cursor(field:, direction:)
+        raw = params[:export_cursor]
+        return nil if raw.blank?
+
+        cursor = ExportCursor.decode(raw)
+        unless cursor.field == field && cursor.direction == direction
+          raise ExportCursor::Invalid, "mismatch"
         end
-        rows.to_json
+
+        cursor
       end
 
-      def batched_xml_chunk(batch_page, page: nil)
-        builder = active_admin_config.csv_builder
-        options = builder.options
-        columns = batched_export_filter_columns(builder.exec_columns(view_context))
-        xml = Builder::XmlMarkup.new(indent: 0)
-        paginated_export_rows(batch_page, page: page) do |resource|
-          row = apply_export_macros(builder.build_row(resource, columns, options), columns, resource)
-          xml.batch do
-            xml.record do
-              columns.each_with_index do |column, index|
-                xml.field("name" => column.name) { xml.text!(row[index].to_s) }
-              end
-            end
-          end
-        end
-        xml.target!
-      end
-
-      def apply_export_macros(row, columns, resource)
-        ExportMacroResolver.apply(
-          row: row,
-          columns: columns,
-          resource: resource,
-          resource_settings: active_admin_config.batched_export_settings,
-          registry: merged_macro_registry
+      def snapshot_export_page(field:, direction:, cursor:)
+        SnapshotPage.fetch(
+          export_collection,
+          model: active_admin_config.resource_class,
+          field: field,
+          direction: direction,
+          cursor: cursor,
+          snapshot_param: params[:export_snapshot],
+          limit: effective_batch_size
         )
       end
 
-      def merged_macro_registry
-        BatchedExport.config.registered_macros.merge(ExportMacroCatalog.global_registry)
-      end
-
-      def paginated_export_rows(batch_page, page: nil)
-        (page || page_relation(batch_page)).each do |resource|
-          yield apply_decorator(resource)
-        end
-      end
-
-      def page_relation(page)
+      def export_collection
         collection = find_collection(except: [:pagination])
         includes_list = active_admin_config.batched_export_includes
-        collection = collection.includes(includes_list) if includes_list.present?
-        paginate(collection, page, effective_batch_size)
+        includes_list.present? ? collection.includes(includes_list) : collection
       end
 
       def effective_batch_size
@@ -269,7 +269,9 @@ module ActiveAdmin
         return columns if indices.empty?
 
         resolved = indices.filter_map { |index| columns[index] }
-        resolved.presence || columns
+        raise UnresolvableExportColumnsError if resolved.empty?
+
+        resolved
       end
     end
   end

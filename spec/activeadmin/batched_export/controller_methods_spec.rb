@@ -52,9 +52,11 @@ RSpec.describe ActiveAdmin::BatchedExport::ControllerMethods do
       expect(controller.send(:batched_export_filter_columns, columns).map(&:name)).to eq(%w[c a])
     end
 
-    it "falls back to all columns when selection resolves empty" do
+    it "raises when selection resolves empty" do
       controller.params = {"export_columns" => ["99"]}
-      expect(controller.send(:batched_export_filter_columns, columns)).to eq(columns)
+      expect {
+        controller.send(:batched_export_filter_columns, columns)
+      }.to raise_error(ActiveAdmin::BatchedExport::UnresolvableExportColumnsError)
     end
   end
 end

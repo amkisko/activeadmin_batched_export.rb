@@ -17,6 +17,14 @@ RSpec.describe ActiveAdmin::BatchedExport::Configuration do
     expect(configuration.large_export_row_threshold).to eq(25_000)
   end
 
+  it "defaults max export rows to unlimited" do
+    expect(configuration.max_export_rows).to be_nil
+  end
+
+  it "defaults snapshot ttl to one day in seconds" do
+    expect(configuration.snapshot_ttl).to eq(86_400)
+  end
+
   it "defaults batched export to opt-in" do
     expect(configuration.default_enabled).to be(false)
   end

@@ -13,6 +13,9 @@
   data-<%= stimulus_controller %>-failed-batch-template-value="<%= t("active_admin.batched_export_page.failed_batch") %>"
   data-<%= stimulus_controller %>-ready-message-value="<%= t("active_admin.batched_export_page.ready") %>"
   data-<%= stimulus_controller %>-needs-column-message-value="<%= t("active_admin.batched_export_page.select_at_least_one_column") %>"
+  data-<%= stimulus_controller %>-cancelled-message-value="<%= t("active_admin.batched_export_page.cancelled") %>"
+  data-<%= stimulus_controller %>-incomplete-message-value="<%= t("active_admin.batched_export_page.incomplete") %>"
+  data-<%= stimulus_controller %>-over-max-message-value="<%= t("active_admin.batched_export_page.over_max_rows") %>"
 >
   <%= render "active_admin/batched_export/summary", styles: styles %>
   <%= render "active_admin/batched_export/columns", styles: styles, stimulus_controller: stimulus_controller %>

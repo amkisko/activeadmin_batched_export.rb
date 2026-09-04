@@ -8,6 +8,7 @@ lint:
 	bundle exec rbs validate
 
 test: lint
+	node --test spec/javascript/chunk_assembly.test.mjs
 	bundle exec polyrun parallel-rspec --workers 5 --merge-failures
 
 clean:

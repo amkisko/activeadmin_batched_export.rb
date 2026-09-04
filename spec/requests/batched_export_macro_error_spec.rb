@@ -11,7 +11,6 @@ RSpec.describe "Batched export macro errors", type: :request do
   it "returns unprocessable entity when a column references an unknown macro" do
     get batched_export_admin_macro_probes_path(
       format: :csv,
-      batch_page: 1,
       export_format: "csv"
     )
 

@@ -1,4 +1,4 @@
-<% export_base_params = request.query_parameters.except(:format, :commit, :page, :batch_page, :export_meta) %>
+<% export_base_params = request.query_parameters.except(:format, :commit, :page, :batch_page, :export_meta, :export_cursor, :export_snapshot) %>
 <div>
   <span><%= I18n.t("active_admin.download") %></span>
   <% if active_admin_config.batched_export_enabled? %>

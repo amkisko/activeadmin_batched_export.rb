@@ -28,6 +28,7 @@ ActiveAdmin::BatchedExport.configure do |config|
     card: "rounded-lg border border-slate-200 bg-slate-50 p-6",
     primary_button: "btn btn-primary",
     secondary_button: "btn btn-outline",
+    cancel_button: "btn btn-ghost",
     back_link: "link link-primary"
   )
 end
@@ -44,5 +45,6 @@ Gem ships English under `active_admin.batched_export_page`. Add host-app locale 
 ## 6. Verify
 
 - Index page CSV link points to `/admin/<resource>/batched_export`
-- Workspace loads metadata and batch chunks
+- Workspace loads metadata and cursor chunks
+- Cancel keeps an incomplete file when loading stops mid-walk
 - Column selection and filters match the index scope

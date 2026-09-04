@@ -26,6 +26,7 @@ module ActiveAdmin
         actions: "flex flex-wrap gap-3",
         primary_button: "rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50",
         secondary_button: "hidden rounded border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-800",
+        cancel_button: "rounded border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-800",
         back_link: "inline-flex items-center text-sm text-blue-600 hover:underline"
       }.freeze
 
