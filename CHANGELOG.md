@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 0.3.1 (2026-09-07)
 
 - Return 406 when a csv, json, or xml `batched_export` request is not JSON metadata and not a matching-format batch.
 

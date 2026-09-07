@@ -14,7 +14,7 @@ Stimulus batch URLs keep format and export_format aligned, so the happy path is 
 
 ## Next
 
-Ship the guard in the gem. Hosts that prepend a mismatch 406 can drop that prepend after upgrade.
+Version is 0.3.1. make release when ready to tag and push the gem. Hosts that prepend a mismatch 406 can drop that prepend after upgrade.
 
 ## Source
 

@@ -10,7 +10,7 @@ json format with csv export_format and no export_meta is 406. Matching batch and
 
 ## Next
 
-Include in the next patch release.
+Shipped in 0.3.1. make release when ready to tag and push the gem.
 
 ## Source
 
