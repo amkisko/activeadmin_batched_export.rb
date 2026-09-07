@@ -25,7 +25,7 @@ Inserts in the already-walked range are omitted. Deletes of already-exported row
 
 ## Reference-level explanation
 
-A request is a batch when `request.format.symbol` equals the normalized `export_format` among csv, json, and xml, and `export_meta` is absent. Garbage `export_cursor` or a cursor whose field or direction does not match the current ActiveAdmin::OrderClause is 400. `export_columns` present with no resolvable index is 400. Macros run, then `ActiveAdmin::Sanitizer.sanitize` on each cell.
+A request is a batch when `request.format.symbol` equals the normalized `export_format` among csv, json, and xml, and `export_meta` is absent. A csv, json, or xml request that is not JSON `export_meta` and not a matching-format batch is 406. Garbage `export_cursor` or a cursor whose field or direction does not match the current ActiveAdmin::OrderClause is 400. `export_columns` present with no resolvable index is 400. Macros run, then `ActiveAdmin::Sanitizer.sanitize` on each cell.
 
 Cursor payload is Base64url JSON `{ f, d, k, s }`: sort field, `asc` or `desc`, primary key, sort value. Time and Date dump as iso8601. Decode casts with `model.type_for_attribute`. Sort field must be a table column on the resource. Custom `order_by` expressions fall back to primary key descending. When the sort field is not the primary key, the walk uses `(sort, pk)` with the same direction on both. Next cursor comes from the last record of a full page. A short or empty page omits the header.
 

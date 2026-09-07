@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Return 406 when a csv, json, or xml `batched_export` request is not JSON metadata and not a matching-format batch.
+
 ## 0.3.0 (2026-09-04)
 
 - BREAKING: Walk export batches with `export_cursor` and `X-Batched-Export-Next` instead of OFFSET `batch_page`. Hosts that copied the Stimulus controller must pick up the new loop.

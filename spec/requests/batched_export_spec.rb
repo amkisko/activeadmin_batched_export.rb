@@ -37,6 +37,15 @@ RSpec.describe "Batched export", type: :request do
       expect(response.body).not_to include(I18n.t("active_admin.batched_export_page.summary_title"))
     end
 
+    it "rejects a data format that does not match export_format" do
+      get batched_export_admin_orders_path(
+        format: :json,
+        export_format: "csv"
+      )
+
+      expect(response).to have_http_status(:not_acceptable)
+    end
+
     it "flags large exports in metadata when the row threshold is exceeded" do
       previous_threshold = ActiveAdmin::BatchedExport.config.large_export_row_threshold
       ActiveAdmin::BatchedExport.config.large_export_row_threshold = 2

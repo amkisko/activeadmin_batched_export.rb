@@ -23,6 +23,7 @@ module ActiveAdmin
         end
 
         return render_export_batch(export_format) if export_batch_request?(export_format)
+        return head(:not_acceptable) if %i[csv json xml].include?(request.format.symbol)
 
         render_export_workspace(export_format)
       end
