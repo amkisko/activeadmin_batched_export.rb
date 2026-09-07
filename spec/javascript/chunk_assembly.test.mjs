@@ -5,7 +5,7 @@ import {
   assembleExportParts,
   concatJsonArrayChunks,
   wrapXmlChunks,
-} from "../../app/assets/javascripts/activeadmin_batched_export/chunk_assembly.mjs"
+} from "../../app/assets/javascripts/activeadmin_batched_export/chunk_assembly.js"
 
 test("concatJsonArrayChunks joins array inners into one array", () => {
   const combined = concatJsonArrayChunks(['[{"Id":1}]', '[{"Id":2}]'])

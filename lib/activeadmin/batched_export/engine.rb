@@ -31,18 +31,15 @@ module ActiveAdmin
         app.config.importmap.cache_sweepers << assets_path.join("javascripts")
       end
 
-      initializer "activeadmin_batched_export.importmap", after: :load_config_initializers do
-        next unless Rails.application.respond_to?(:importmap) && Rails.application.importmap
+      initializer "activeadmin_batched_export.importmap", after: "active_admin.importmap" do
+        next unless defined?(ActiveAdmin) && ActiveAdmin.respond_to?(:importmap) && ActiveAdmin.importmap
 
-        pin_controller = proc do |importmap|
-          importmap.pin "controllers/activeadmin_batched_export/batched_export_controller",
+        ActiveAdmin.importmap.draw do
+          pin "controllers/activeadmin_batched_export/batched_export_controller",
             to: "activeadmin_batched_export/batched_export_controller.js"
-          importmap.pin "activeadmin_batched_export/chunk_assembly",
-            to: "activeadmin_batched_export/chunk_assembly.mjs"
+          pin "activeadmin_batched_export/chunk_assembly",
+            to: "activeadmin_batched_export/chunk_assembly.js"
         end
-
-        Rails.application.importmap.draw(&pin_controller)
-        ActiveAdmin.importmap.draw(&pin_controller) if defined?(ActiveAdmin)
       end
 
       initializer "activeadmin_batched_export.i18n" do

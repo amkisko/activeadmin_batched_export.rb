@@ -14,4 +14,5 @@ spec/requests/batched_export_null_sort_spec.rb
 spec/requests/batched_export_scope_spec.rb
 spec/requests/batched_export_snapshot_spec.rb
 spec/requests/batched_export_spec.rb
+spec/requests/importmap_javascript_mime_spec.rb
 spec/views/download_format_links_spec.rb

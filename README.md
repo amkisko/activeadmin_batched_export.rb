@@ -176,7 +176,7 @@ See [examples/custom_theme/README.md](examples/custom_theme/README.md) for local
 
 ## Stimulus controller and assets
 
-The engine pins `controllers/activeadmin_batched_export/batched_export_controller` and `activeadmin_batched_export/chunk_assembly` on both the host and ActiveAdmin importmaps. Include the gem `app/assets/controllers` and `app/assets/javascripts` paths in your ActiveAdmin importmap cache sweeper when developing locally.
+The engine pins `controllers/activeadmin_batched_export/batched_export_controller` and `activeadmin_batched_export/chunk_assembly` on `ActiveAdmin.importmap` only. Include the gem `app/assets/controllers` and `app/assets/javascripts` paths in the host importmap cache sweeper when developing locally.
 
 ## How it works
 

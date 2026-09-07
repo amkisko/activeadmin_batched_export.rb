@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased
+
+- Pin export JavaScript on the ActiveAdmin importmap only, and ship chunk assembly as `.js` so the workspace script loads with a JavaScript content type.
+
 ## 0.3.1 (2026-09-07)
 
 - Return 406 when a csv, json, or xml `batched_export` request is not JSON metadata and not a matching-format batch.
