@@ -1,8 +1,9 @@
 # CHANGELOG
 
-## Unreleased
+## 0.3.2 (2026-09-07)
 
-- Pin export JavaScript on the ActiveAdmin importmap only, and ship chunk assembly as `.js` so the workspace script loads with a JavaScript content type.
+- Serve the workspace export assembly as JavaScript from `ActiveAdmin.importmap`.
+- Pin export modules on `ActiveAdmin.importmap` only.
 
 ## 0.3.1 (2026-09-07)
 

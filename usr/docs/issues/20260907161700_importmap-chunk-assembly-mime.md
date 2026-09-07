@@ -12,7 +12,7 @@ Dummy ActiveAdmin.importmap.packages previously omitted the export pins when the
 
 ## Next
 
-Ship in the next gem version. Hosts that registered Mime::Type for mjs or copied engine pins onto the host map can drop those workarounds after upgrade.
+Shipped in 0.3.2. make release when ready to tag and push the gem. Hosts that registered Mime::Type for mjs or copied engine pins onto the host map can drop those workarounds after upgrade.
 
 ## Source
 

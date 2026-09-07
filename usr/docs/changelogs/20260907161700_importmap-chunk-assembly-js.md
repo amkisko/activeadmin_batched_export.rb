@@ -10,7 +10,7 @@ Host importmap no longer lists export module names. ActiveAdmin importmap lists 
 
 ## Next
 
-Unreleased until the next gem version.
+Shipped in 0.3.2. make release when ready to tag and push the gem.
 
 ## Source
 
