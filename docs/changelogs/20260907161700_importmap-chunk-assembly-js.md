@@ -1,5 +1,9 @@
 # Importmap chunk assembly as js
 
+## Participants
+
+Andrei Makarov (@amkisko)
+
 ## Decisions
 
 Rename chunk_assembly.mjs to chunk_assembly.js. Draw pins only on ActiveAdmin.importmap after active_admin.importmap.

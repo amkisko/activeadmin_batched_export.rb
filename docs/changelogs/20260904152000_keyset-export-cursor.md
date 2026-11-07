@@ -1,5 +1,9 @@
 # Keyset export cursor
 
+## Participants
+
+Andrei Makarov (@amkisko)
+
 ## Decisions
 
 Batch export walks with export_cursor and X-Batched-Export-Next (RFC-0002) instead of OFFSET batch_page.

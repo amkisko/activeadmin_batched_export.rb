@@ -42,6 +42,26 @@ RSpec.describe "Batched export row cap", type: :request do
     expect(response.body).to include(I18n.t("active_admin.batched_export_page.over_max_rows"))
   end
 
+  it "refuses a live batch that carries a cursor when the collection is over the cap" do
+    ActiveAdmin::BatchedExport.config.max_export_rows = 2
+    cursor = ActiveAdmin::BatchedExport::ExportCursor.encode(
+      field: "id",
+      direction: "asc",
+      primary_key: Order.order(:id).pick(:id),
+      sort_value: Order.order(:id).pick(:id)
+    )
+
+    get batched_export_admin_orders_path(
+      format: :csv,
+      export_format: "csv",
+      order: "id_asc",
+      export_cursor: cursor
+    )
+
+    expect(response).to have_http_status(:bad_request)
+    expect(response.body).to include(I18n.t("active_admin.batched_export_page.over_max_rows"))
+  end
+
   it "allows a collection equal to the cap" do
     ActiveAdmin::BatchedExport.config.max_export_rows = 3
 

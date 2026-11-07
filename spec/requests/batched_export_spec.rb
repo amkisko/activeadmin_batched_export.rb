@@ -33,7 +33,7 @@ RSpec.describe "Batched export", type: :request do
     it "rejects formats that are not enabled on the index workspace page" do
       get batched_export_admin_orders_path(export_format: "xml")
 
-      expect(response).not_to have_http_status(:ok)
+      expect(response).to have_http_status(:found)
       expect(response.body).not_to include(I18n.t("active_admin.batched_export_page.summary_title"))
     end
 

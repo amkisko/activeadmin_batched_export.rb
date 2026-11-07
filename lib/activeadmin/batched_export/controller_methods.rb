@@ -48,7 +48,9 @@ module ActiveAdmin
 
       def render_export_batch(export_format)
         ensure_batch_download_format_allowed!(export_format)
-        refuse_over_max_export_rows! if starting_export_walk?
+        # Live walks (no snapshot token) always admit against max_export_rows.
+        # export_cursor is client-supplied Base64 JSON, so presence alone must not skip the cap.
+        refuse_over_max_export_rows! if params[:export_snapshot].blank?
         field, direction = batched_export_sort_pair
         cursor = decode_export_cursor(field: field, direction: direction)
         page = snapshot_export_page(field: field, direction: direction, cursor: cursor)
@@ -137,10 +139,6 @@ module ActiveAdmin
 
       def export_filtered_count
         paginate(find_collection(except: [:pagination]), 1, effective_batch_size).total_count
-      end
-
-      def starting_export_walk?
-        params[:export_snapshot].blank? && params[:export_cursor].blank?
       end
 
       def refuse_over_max_export_rows!
@@ -238,7 +236,7 @@ module ActiveAdmin
       def batched_export_sort_description
         order_param = params[:order].presence || active_admin_config.sort_order
         clause = ActiveAdmin::OrderClause.new(active_admin_config, order_param)
-        return order_param.to_s.tr("_", " ").strip.presence || "—" unless clause.valid?
+        return order_param.to_s.tr("_", " ").strip.presence || "-" unless clause.valid?
 
         attribute = active_admin_config.resource_class.human_attribute_name(clause.field)
         direction =
@@ -247,7 +245,7 @@ module ActiveAdmin
           else
             I18n.t("active_admin.batched_export_page.sort_ascending")
           end
-        "#{attribute} — #{direction}"
+        "#{attribute} - #{direction}"
       end
 
       def batched_export_csv_column_metadata

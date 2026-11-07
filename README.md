@@ -53,7 +53,7 @@ add_index :active_admin_batched_export_snapshot_rows, [:token, :position], uniqu
 add_index :active_admin_batched_export_snapshot_rows, :created_at
 ```
 
-Without that table, batches walk a live keyset cursor. With it, the first batch stores filtered primary keys and later batches join live rows in freeze order. The token is not an access grant: rows still load through `find_collection`.
+Without that table, batches walk a live keyset cursor. With it, the first batch stores filtered primary keys and later batches join live rows in freeze order. The token is not an access grant: rows still load through `find_collection`. Freeze mode expects integer primary keys (`bigint record_id`); UUID or string keys are not supported yet.
 
 Enable download formats per resource:
 
@@ -153,12 +153,12 @@ Available keys: `workspace`, `card`, `card_title`, `table`, `table_body`, `table
 
 Copy any partial from the gem into `app/views/active_admin/batched_export/` in the host app:
 
-- `workspace.html.erb` — page shell; start here for layout changes
+- `workspace.html.erb`: page shell; start here for layout changes
 - `_summary.html.erb`
 - `_columns.html.erb`
 - `_filters.html.erb`
 - `_progress.html.erb`
-- `_actions.html.erb` — load, cancel, save, and back buttons
+- `_actions.html.erb`: load, cancel, save, and back buttons
 
 ### Stimulus controller
 
@@ -185,7 +185,7 @@ The engine pins `controllers/activeadmin_batched_export/batched_export_controlle
 3. Load export always refetches `export_meta` JSON for a progress estimate, then walks chunks with `export_cursor` / `X-Batched-Export-Next` until that header is absent. When the freeze table exists, the first batch also returns `X-Batched-Export-Snapshot` and later chunks send `export_snapshot` with the cursor.
 4. User saves the assembled Blob locally. Cancel keeps an incomplete file when any chunks already arrived.
 
-Batched requests limit server memory per request; the browser still holds the full assembled file before save. Very large exports can exhaust tab memory. Tune `batch_size`, `max_batch_size`, and `large_export_row_threshold` for your data width and row counts. The workspace shows a warning when row count reaches the threshold. Set `max_export_rows` to refuse a collection larger than that count (`over_max` on meta, 400 on the first batch).
+Batched requests limit server memory per request; the browser still holds the full assembled file before save. Very large exports can exhaust tab memory. Tune `batch_size`, `max_batch_size`, and `large_export_row_threshold` for your data width and row counts. The workspace shows a warning when row count reaches the threshold. Set `max_export_rows` to refuse a collection larger than that count (`over_max` on meta, 400 on live batches, including requests that already carry `export_cursor`).
 
 When the freeze table exists, the first batch stores filtered primary keys in NULL-safe order (RFC-0003). Later batches walk those positions and join live cells. Inserts after freeze are omitted. Updates after freeze appear. Deleted freeze ids are skipped. Without the table, each chunk continues after the last returned sort key and primary key (RFC-0002) and is not a point-in-time snapshot. Custom `order_by` expressions fall back to primary key descending. NULL sort keys sort last in both directions.
 
@@ -230,7 +230,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports and pull requests are welcom
 
 ## License
 
-MIT — see [LICENSE.md](LICENSE.md).
+MIT. See [LICENSE.md](LICENSE.md).
 
 ## Sponsors
 

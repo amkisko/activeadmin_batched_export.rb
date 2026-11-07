@@ -1,5 +1,9 @@
 # Reject mismatched data formats
 
+## Participants
+
+Andrei Makarov (@amkisko)
+
 ## Decisions
 
 After export_meta JSON and matching-format batch handling, csv, json, and xml requests return 406 instead of rendering the HTML workspace.

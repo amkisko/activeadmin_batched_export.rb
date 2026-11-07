@@ -1,5 +1,9 @@
 # Export freeze, caps, and NULL sort keys
 
+## Participants
+
+Andrei Makarov (@amkisko)
+
 ## Decisions
 
 When the freeze table exists, the first batch stores filtered primary keys in NULL-safe order and later batches walk that list by position (RFC-0003). The token is not an access grant. Meta GET does not freeze.

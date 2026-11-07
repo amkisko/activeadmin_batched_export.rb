@@ -1,5 +1,9 @@
 # Mismatched export format 500
 
+## Participants
+
+Andrei Makarov (@amkisko)
+
 ## Decisions
 
 A csv, json, or xml batched_export request that is not JSON export_meta and not a matching-format batch is 406. Do not render the HTML workspace under those formats.

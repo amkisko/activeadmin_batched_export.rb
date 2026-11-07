@@ -1,5 +1,9 @@
 # Importmap chunk assembly MIME
 
+## Participants
+
+Andrei Makarov (@amkisko)
+
 ## Decisions
 
 Pin batched export modules on ActiveAdmin.importmap only, after the active_admin.importmap initializer. Ship chunk assembly as chunk_assembly.js. Do not pin the host Rails.application.importmap.

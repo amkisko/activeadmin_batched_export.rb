@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.3.3 (2026-11-03)
+
+- Refuse `max_export_rows` on live batch requests even when `export_cursor` is set.
+- Fail closed when release confirmation input reaches EOF; accept empty Enter or case-insensitive `y`.
+- Require a matching `CHANGELOG.md` version heading before `gem push`.
+- Run the test workflow on pull requests.
+
 ## 0.3.2 (2026-09-07)
 
 - Serve the workspace export assembly as JavaScript from `ActiveAdmin.importmap`.
